@@ -1,0 +1,14 @@
+# Virtual Environment
+venv/
+.env
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# IDE
+.idea/
+
+# DATA
+data/
+!data/.gitkeep
