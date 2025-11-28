@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # 1. DATABASE (PostgreSQL)
+  postgres:
+    image: postgres:13
+    container_name: mlops_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mlops_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. MLFLOW TRACKING SERVER
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    container_name: mlops_mlflow
+    restart: always
+    ports:
+      - "${MLFLOW_PORT}:5000"
+    environment:
+      MLFLOW_BACKEND_STORE_URI: ${MLFLOW_BACKEND_STORE_URI}
+      MLFLOW_ARTIFACT_ROOT: /app/mlruns
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./mlruns:/app/mlruns
+    networks:
+      - mlops_network
+    command: >
+      mlflow server
+      --backend-store-uri ${MLFLOW_BACKEND_STORE_URI}
+      --host 0.0.0.0
+      --port 5000
+      --default-artifact-root /app/mlruns
+
+  # 3. FASTAPI (BACKEND & TRAINING WORKER)
+  fastapi_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mlops_api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    depends_on:
+      - mlflow
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./data:/app/data
+    networks:
+      - mlops_network
+    command: uvicorn src.app:app --host 0.0.0.0 --port 8000
+
+  # 4. STREAMLIT (FRONTEND)
+  streamlit_ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mlops_frontend
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://fastapi_app:8000/predict
+    depends_on:
+      - fastapi_app
+    networks:
+      - mlops_network
+    command: streamlit run frontend/main.py --server.port 8501 --server.address 0.0.0.0
+
+volumes:
+  postgres_data:
+
+networks:
+  mlops_network:
+    driver: bridge
