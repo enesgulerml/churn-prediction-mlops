@@ -38,7 +38,7 @@ You don't need to install Python or libraries manually. **Docker** handles every
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/enesgulerml/churn-prediction-mlops.git](https://github.com/enesgulerml/churn-prediction-mlops.git)
+git clone https://github.com/enesgulerml/churn-prediction-mlops.git
 cd churn-prediction-mlops
 ```
 
