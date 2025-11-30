@@ -11,4 +11,7 @@ __pycache__/
 
 # DATA
 data/
-!data/.gitkeep
+!data/.gitkee
+
+# MLFLOW
+mlruns/

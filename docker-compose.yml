@@ -22,7 +22,19 @@ services:
       timeout: 5s
       retries: 5
 
-  # 2. MLFLOW TRACKING SERVER
+  # 2. REDIS
+  redis:
+    image: redis:alpine
+    container_name: telco_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mlops_network
+
+  # 3. MLFLOW TRACKING SERVER
   mlflow:
     build:
       context: .
@@ -48,7 +60,7 @@ services:
       --port 5000
       --default-artifact-root /app/mlruns
 
-  # 3. FASTAPI (BACKEND & TRAINING WORKER)
+  # 4. FASTAPI (BACKEND & TRAINING WORKER)
   fastapi_app:
     build:
       context: .
@@ -62,8 +74,10 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+      - REDIS_HOST=redis
     depends_on:
       - mlflow
+      - redis
     volumes:
       - ./mlruns:/app/mlruns
       - ./data:/app/data
@@ -71,7 +85,7 @@ services:
       - mlops_network
     command: uvicorn src.app:app --host 0.0.0.0 --port 8000
 
-  # 4. STREAMLIT (FRONTEND)
+  # 5. STREAMLIT (FRONTEND)
   streamlit_ui:
     build:
       context: .
@@ -90,6 +104,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   mlops_network:
