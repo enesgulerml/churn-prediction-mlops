@@ -80,6 +80,27 @@ Restart the API service to load the newly registered production model.
 docker restart mlops_api
 ```
 
+## 🧪 Testing
+
+To ensure system reliability, the project includes a comprehensive test suite using **pytest**.
+
+### Running Tests Locally
+You can execute unit and integration tests directly from your local environment. The API tests use **mocking** to simulate model inference, removing the need for active Docker containers during testing.
+
+```bash
+# Install test dependencies (if not already installed)
+pip install pytest httpx
+
+# Run the test suite with verbose output
+pytest -v
+```
+
+**Test Scope**
+
+* Unit Tests (tests/test_preprocessing.py): Validates data cleaning logic, ensuring critical features like customerid are removed and target variables are correctly mapped.
+
+* Integration Tests (tests/test_api.py): Verifies the stability of API endpoints (/health and /predict), checking response status codes and JSON schema validity.
+
 ## 📊 Accessing the Interfaces
 
 | Service | URL | Description |
