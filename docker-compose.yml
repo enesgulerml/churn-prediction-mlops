@@ -34,7 +34,31 @@ services:
     networks:
       - mlops_network
 
-  # 3. MLFLOW TRACKING SERVER
+  # 3. MONITORING - PROMETHEUS
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: telco_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - mlops_network
+
+  # 4. MONITORING - GRAFANA
+  grafana:
+    image: grafana/grafana:latest
+    container_name: telco_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - mlops_network
+
+  # 5. MLFLOW TRACKING SERVER
   mlflow:
     build:
       context: .
@@ -60,7 +84,7 @@ services:
       --port 5000
       --default-artifact-root /app/mlruns
 
-  # 4. FASTAPI (BACKEND & TRAINING WORKER)
+  # 6. FASTAPI (BACKEND & TRAINING WORKER)
   fastapi_app:
     build:
       context: .
@@ -85,7 +109,7 @@ services:
       - mlops_network
     command: uvicorn src.app:app --host 0.0.0.0 --port 8000
 
-  # 5. STREAMLIT (FRONTEND)
+  # 7. STREAMLIT (FRONTEND)
   streamlit_ui:
     build:
       context: .

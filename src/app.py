@@ -7,6 +7,7 @@ from src.config import config
 import redis
 import json
 import os
+from prometheus_fastapi_instrumentator import Instrumentator # <--- NEW IMPORTS
 
 ml_models = {}
 redis_client = None
@@ -47,6 +48,11 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Telco Churn Prediction API", version="1.0", lifespan=lifespan)
+
+# --- MONITORING INSTRUMENTATION (NEW) ---
+# Expose metrics to Prometheus
+Instrumentator().instrument(app).expose(app)
+# ----------------------------------------
 
 
 class CustomerData(BaseModel):
@@ -104,7 +110,7 @@ def predict(data: CustomerData):
                 print("⚡ CACHE HIT: The result is coming back from Redis!")
                 return json.loads(cached_result)
 
-        # 3. Cache'te Yoksa Tahmin Yap (Cache Miss)
+        # 3. Cache Miss (Run Model)
         print("🐢 CACHE MISS: Running model...")
         input_df = pd.DataFrame([data.model_dump()])
 
@@ -136,6 +142,5 @@ def predict(data: CustomerData):
 
 if __name__ == "__main__":
     import uvicorn
-
     # Env variable ile host settings
     uvicorn.run(app, host="0.0.0.0", port=8000)
