@@ -158,7 +158,14 @@ docker-compose down -v
 
 ## 📈 Performance Results
 
-| Model | Accuracy   | F1 Score | Status |
-| :--- |:-----------| :--- | :--- |
-| Random Forest (Baseline) | 78.8%      | 0.54 | Archived |
-| **XGBoost (Tuned)** | **80.92%** | **0.58** | **Production** |
+| Model | Accuracy   | F1 Score   | Status |
+| :--- |:-----------|:-----------| :--- |
+| Random Forest (Baseline) | 78.8%      | 0.54       | Archived |
+| **XGBoost (Tuned)** | **80.92%** | **58.41%** | **Production** |
+
+## 👨‍💻 Author
+
+---
+Enes Guler - MLOps Engineer & Data Scientist
+
+[LinkedIn](in/enes-güler-8ab8a7346) | [Medium](https://medium.com/@ml.enesguler)
