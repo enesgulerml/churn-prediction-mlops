@@ -22,7 +22,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # 2. REDIS
+  # 2. REDIS (Cache & Broker)
   redis:
     image: redis:alpine
     container_name: telco_redis
@@ -90,6 +90,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mlops_api
+    # ⚠️ CRITICAL FIX: Run as root to allow writing to Windows-mounted volumes
+    user: root
     restart: always
     ports:
       - "8000:8000"

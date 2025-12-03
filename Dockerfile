@@ -1,4 +1,4 @@
-# --- STAGE 1: BUILDER ---
+# --- STAGE 1: BUILDER (Construction Site) ---
 # Use a slim python image for the build process
 FROM python:3.10-slim as builder
 
@@ -18,9 +18,12 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# --- STAGE 2: RUNTIME ---
+# --- STAGE 2: RUNTIME (Production Ready & Secure) ---
 # Use a fresh slim image for the final container
 FROM python:3.10-slim as runtime
+
+# 1. SECURITY: Create a non-root group and user
+RUN groupadd -r mlops && useradd -r -g mlops mlops_user
 
 WORKDIR /app
 
@@ -42,6 +45,12 @@ COPY --from=builder /opt/venv /opt/venv
 
 # Copy application source code
 COPY . .
+
+# 2. SECURITY: Change ownership of the application directory to the non-root user
+RUN chown -R mlops_user:mlops /app
+
+# 3. SECURITY: Switch to the non-root user for execution
+USER mlops_user
 
 # Default command (will be overridden by docker-compose)
 CMD ["python", "src/app.py"]
