@@ -130,6 +130,21 @@ pytest -v
 | **FastAPI Swagger** | `http://localhost:8000/docs` | API Documentation & Testing |
 | **MLflow UI** | `http://localhost:5000` | Experiment Tracking & Model Registry |
 
+---
+
+## 🛑 Stopping the System
+
+To stop the services while preserving the database and model registry data (Standard Shutdown):
+```bash
+docker-compose down
+```
+
+To stop the services and remove all persistent data volumes (Reset everything to a clean state, useful for debugging or fresh start):
+
+```bash
+docker-compose down -v
+```
+
 ## 📈 Performance Results
 
 | Model | Accuracy   | F1 Score | Status |
