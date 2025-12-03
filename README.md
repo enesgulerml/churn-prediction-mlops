@@ -45,6 +45,16 @@ cd churn-prediction-mlops
 ### 2. Launch the System
 This command builds the images and starts all services (API, UI, MLflow, DB).
 
+### 3. Environment Configuration
+Rename the example environment file to activate configuration:
+```bash
+# Linux/Mac
+cp .env.example .env
+
+# Windows (CMD)
+copy .env.example .env
+```
+
 ```bash
 docker-compose up -d --build
 ```
