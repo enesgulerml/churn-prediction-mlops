@@ -57,7 +57,7 @@ def create_preprocessor():
         ('scaler', StandardScaler())
     ])
 
-    # Step 3: Combine It All
+    # Step 3: Combine All
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', numerical_transformer, NUMERICAL_FEATURES),

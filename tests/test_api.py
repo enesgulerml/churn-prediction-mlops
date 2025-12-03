@@ -2,7 +2,6 @@ from fastapi.testclient import TestClient
 from unittest.mock import MagicMock
 from src.app import app, ml_models
 
-# Test Client oluştur
 client = TestClient(app)
 
 
@@ -23,21 +22,17 @@ def test_prediction_endpoint():
     we inject a 'Fake Model' into the application memory.
     """
 
-    # 1. SAHTE MODEL OLUŞTUR (MOCK)
-    # Bu model gerçekten tahmin yapmaz, sadece bizim istediğimiz cevabı verir.
+    # 1. CREATE A FAKE MODEL (MOCK)
     fake_model = MagicMock()
 
-    # Model .predict() çağrıldığında [1] dönsün (Churn)
     fake_model.predict.return_value = [1]
 
-    # Model .predict_proba() çağrıldığında %85 olasılık dönsün
     fake_model.predict_proba.return_value = [[0.15, 0.85]]
 
-    # 2. SAHTE MODELİ UYGULAMAYA ENJEKTE ET
-    # app.py içindeki ml_models sözlüğüne zorla koyuyoruz.
+    # 2. INJECT FAKE MODEL INTO APPLICATION
     ml_models["model"] = fake_model
 
-    # 3. Test Verisi
+    # 3. Test Data
     payload = {
         "gender": "Female",
         "senior_citizen": 0,
@@ -60,12 +55,12 @@ def test_prediction_endpoint():
         "totalcharges": 29.85
     }
 
-    # 4. İsteği At
+    # 4. Post Request
     try:
         response = client.post("/predict", json=payload)
 
         # 5. Kontroller
-        assert response.status_code == 200, f"Hata Detayı: {response.text}"
+        assert response.status_code == 200, f"Error Detail: {response.text}"
 
         data = response.json()
         assert data["prediction"] == 1
@@ -73,5 +68,4 @@ def test_prediction_endpoint():
         assert data["churn_status"] == "Yes"
 
     finally:
-        # 6. Temizlik: Test bitince sahte modeli sil ki diğer testleri etkilemesin
         ml_models.clear()

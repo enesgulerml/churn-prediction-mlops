@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Telco Churn Prediction API", version="1.0", lifespan=lifespan)
 
-# --- MONITORING INSTRUMENTATION (NEW) ---
+# --- MONITORING INSTRUMENTATION ---
 # Expose metrics to Prometheus
 Instrumentator().instrument(app).expose(app)
 # ----------------------------------------

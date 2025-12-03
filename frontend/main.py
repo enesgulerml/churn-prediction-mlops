@@ -3,7 +3,7 @@ import requests
 import pandas as pd
 import os
 
-# Sayfa Ayarları
+# Page Settings
 st.set_page_config(
     page_title="Telco Churn Prediction",
     page_icon="🔮",
