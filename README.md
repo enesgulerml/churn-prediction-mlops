@@ -108,9 +108,20 @@ To ensure system reliability, the project includes a comprehensive test suite us
 ### Running Tests Locally
 You can execute unit and integration tests directly from your local environment. The API tests use **mocking** to simulate model inference, removing the need for active Docker containers during testing.
 
+
+
 ```bash
-# Install test dependencies (if not already installed)
-pip install pytest httpx
+# Create a new environment with Python 3.10
+conda create -n churn-mlops python=3.10 -y
+
+# Activate the environment
+conda activate churn-mlops
+
+# Install project dependencies
+pip install -r requirements.txt
+
+# Ensure Docker services are up
+docker-compose up -d
 
 # Run the test suite with verbose output
 pytest -v
