@@ -31,6 +31,20 @@ The system runs as a set of orchestrated Docker containers:
 * **Persistent Storage:** Database and model artifacts are preserved via Docker Volumes.
 
 ---
+## 📂 Dataset Setup
+
+The dataset used in this project is the **Telco Customer Churn** dataset.
+
+1.  **Download:** Get the `WA_Fn-UseC_-Telco-Customer-Churn.csv` file from [Kaggle - Telco Customer Churn](https://www.kaggle.com/blastchar/telco-customer-churn).
+2.  **Place:** Move the downloaded CSV file into the `data/raw/` directory.
+
+**Expected Directory Structure:**
+```text
+churn-prediction-mlops/
+├── data/
+│   └── raw/
+│       └── WA_Fn-UseC_-Telco-Customer-Churn.csv
+```
 
 ## 🛠️ Installation & Setup
 
@@ -42,10 +56,7 @@ git clone https://github.com/enesgulerml/churn-prediction-mlops.git
 cd churn-prediction-mlops
 ```
 
-### 2. Launch the System
-This command builds the images and starts all services (API, UI, MLflow, DB).
-
-### 3. Environment Configuration
+### 2. Environment Configuration
 Rename the example environment file to activate configuration:
 ```bash
 # Linux/Mac
