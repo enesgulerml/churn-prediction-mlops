@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Deploy to Server and Restart Docker
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_KEY }}
+        HOST: ${{ secrets.EC2_HOST }}
+        USER: ${{ secrets.EC2_USER }}
+      run: |
+        # 1. Create private key file and set permissions
+        echo "$PRIVATE_KEY" > private_key.pem
+        chmod 600 private_key.pem
+        
+        # 2. Add server to known hosts to avoid interactive prompt
+        mkdir -p ~/.ssh
+        ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+
+        # 3. Copy files to server using Rsync
+        rsync -avz -e "ssh -i private_key.pem" ./ $USER@$HOST:/home/ubuntu/projects/
+
+        # 4. Connect to server and restart Docker containers
+        ssh -i private_key.pem $USER@$HOST << 'EOF'
+          cd /home/ubuntu/projects
+          
+          # Rebuild and restart containers
+          sudo docker-compose down
+          sudo docker-compose up -d --build
+          
+          # Clean up unused Docker images to save space
+          sudo docker system prune -f
+        EOF
