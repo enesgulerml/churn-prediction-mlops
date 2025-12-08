@@ -133,13 +133,20 @@ pytest -v
 
 * Integration Tests (tests/test_api.py): Verifies the stability of API endpoints (/health and /predict), checking response status codes and JSON schema validity.
 
-## 📊 Accessing the Interfaces
+## 📊 Access Interfaces
 
-| Service | URL | Description |
+### 🟢 Application Layer
+| Component | URL | Purpose |
 | :--- | :--- | :--- |
-| **Streamlit Dashboard** | `http://localhost:8501` | Interactive UI for Churn Prediction |
-| **FastAPI Swagger** | `http://localhost:8000/docs` | API Documentation & Testing |
-| **MLflow UI** | `http://localhost:5000` | Experiment Tracking & Model Registry |
+| **Frontend** | [`http://localhost:8501`](http://localhost:8501) | End-user prediction interface (Streamlit). |
+| **Backend API** | [`http://localhost:8000/docs`](http://localhost:8000/docs) | API endpoints and documentation (FastAPI). |
+
+### 🔵 Monitoring & MLOps
+| Component | URL | Auth | Purpose |
+| :--- | :--- | :--- | :--- |
+| **MLflow UI** | [`http://localhost:5000`](http://localhost:5000) | - | Model versioning and run tracking. |
+| **Grafana** | [`http://localhost:3000`](http://localhost:3000) | `admin/admin` | Visualizing container health & model drift. |
+| **Prometheus** | [`http://localhost:9090`](http://localhost:9090) | - | Collecting metrics from API targets. |
 
 ---
 
