@@ -12,31 +12,40 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Deploy to Server and Restart Docker
+    - name: Deploy to Server
       env:
         PRIVATE_KEY: ${{ secrets.EC2_KEY }}
         HOST: ${{ secrets.EC2_HOST }}
         USER: ${{ secrets.EC2_USER }}
+        TARGET_DIR: "/home/ubuntu/projects/avg_project"
       run: |
-        # 1. Create private key file and set permissions
-        echo "$PRIVATE_KEY" > private_key.pem
-        chmod 600 private_key.pem
-        
-        # 2. Add server to known hosts to avoid interactive prompt
+        # -------------------------------------------------------
+        # 1. Generate SSH Key Securely
+        # -------------------------------------------------------
         mkdir -p ~/.ssh
+        echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+        # 2. Add the server to known_hosts
         ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
-        # 3. Copy files to server using Rsync
-        rsync -avz -e "ssh -i private_key.pem" ./ $USER@$HOST:/home/ubuntu/projects/
+        # -------------------------------------------------------
+        # 3. Copy Files to Server (Rsync)
+        # -------------------------------------------------------.
+        rsync -avz --delete --exclude '.git' --exclude '.github' -e "ssh -i ~/.ssh/id_rsa" ./ $USER@$HOST:$TARGET_DIR
 
-        # 4. Connect to server and restart Docker containers
-        ssh -i private_key.pem $USER@$HOST << 'EOF'
-          cd /home/ubuntu/projects
+        # -------------------------------------------------------
+        # 4. Connect to Server and Restart Docker
+        # -------------------------------------------------------
+        ssh -i ~/.ssh/id_rsa $USER@$HOST << EOF
+          # Go to target folder
+          cd $TARGET_DIR
           
-          # Rebuild and restart containers
-          sudo docker-compose down
-          sudo docker-compose up -d --build
+          echo "Containers are being stopped..."
+          sudo docker compose down
           
-          # Clean up unused Docker images to save space
+          echo "Containers are being rebuilt and started..."
+          sudo docker compose up -d --build
+          
           sudo docker system prune -f
         EOF
