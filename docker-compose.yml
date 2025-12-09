@@ -90,7 +90,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mlops_api
-    # ⚠️ CRITICAL FIX: Run as root to allow writing to Windows-mounted volumes
+    # Run as root to allow writing to Windows-mounted volumes
     user: root
     restart: always
     ports:
@@ -111,7 +111,7 @@ services:
       - mlops_network
     command: uvicorn src.app:app --host 0.0.0.0 --port 8000
 
-  # 7. STREAMLIT (FRONTEND)
+  # 7. STREAMLIT (CRM FRONTEND)
   streamlit_ui:
     build:
       context: .
@@ -128,15 +128,7 @@ services:
       - mlops_network
     command: streamlit run frontend/main.py --server.port 8501 --server.address 0.0.0.0
 
-volumes:
-  postgres_data:
-  redis_data:
-
-networks:
-  mlops_network:
-    driver: bridge
-
-# H&M RECOMMENDATION ENGINE
+  # 8. H&M RECOMMENDATION ENGINE (NEW SERVICE)
   hm_recommender:
     build:
       context: ./hm_app
@@ -148,3 +140,12 @@ networks:
     networks:
       - mlops_network
     restart: always
+
+# VOLUMES & NETWORKS (Must be at the very bottom)
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  mlops_network:
+    driver: bridge
