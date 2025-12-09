@@ -90,7 +90,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: mlops_api
-    # Run as root to allow writing to Windows-mounted volumes
     user: root
     restart: always
     ports:
@@ -140,8 +139,12 @@ services:
     networks:
       - mlops_network
     restart: always
+    # AUTO-FIX COMMAND: Fixes Windows line endings and permissions automatically on start
+    command: >
+      sh -c "sed -i 's/\r$//' ./run.sh && 
+             chmod +x ./run.sh && 
+             ./run.sh"
 
-# VOLUMES & NETWORKS (Must be at the very bottom)
 volumes:
   postgres_data:
   redis_data:
