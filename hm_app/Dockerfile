@@ -6,10 +6,10 @@ FROM python:3.10-slim as builder
 WORKDIR /app
 
 # Install system dependencies required for building Python packages
-# (These will be discarded in the final stage to save space)
+# Removed 'software-properties-common' to avoid apt-get errors on slim images.
+# These packages are only needed for building wheels and will be discarded later.
 RUN apt-get update && apt-get install -y \
     build-essential \
-    software-properties-common \
     git \
     && rm -rf /var/lib/apt/lists/*
 
@@ -35,7 +35,7 @@ WORKDIR /app
 RUN useradd -m -u 1000 appuser
 
 # Copy the virtual environment from the builder stage
-# This excludes build tools (gcc, git) keeping the image light.
+# This excludes build tools (gcc, git, etc.) keeping the image light.
 COPY --from=builder /opt/venv /opt/venv
 
 # Set environment variables
