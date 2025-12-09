@@ -5,7 +5,7 @@ import os
 
 # --- SETTINGS ---
 # Backend API Address
-API_URL = "http://localhost:8000/predict"
+API_URL = "http://localhost:8000/recommend"
 # Page Configuration
 st.set_page_config(
     page_title="H&M AI Fashion Stylist",
