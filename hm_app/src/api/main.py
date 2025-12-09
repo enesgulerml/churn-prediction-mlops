@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
     # 1. REDIS CONNECTION
     global redis_client
     try:
-        redis_host = os.getenv("REDIS_HOST", "localhost")
+        redis_host = os.getenv("REDIS_HOST", "redis")
         redis_client = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
         redis_client.ping()
         print(f"✅ Redis Connection Established on {redis_host}!")
@@ -37,7 +37,8 @@ async def lifespan(app: FastAPI):
     # 2. LOAD MODEL & DB
     print("🚀 Initializing API... Loading embedding model into RAM...")
     ml_models["encoder"] = SentenceTransformer(MODEL_NAME)
-    ml_models["qdrant"] = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+    print("📂 Connecting to Local Qdrant Storage...")
+    ml_models["qdrant"] = QdrantClient(path="/app/qdrant_storage")
     print("✅ Model and Qdrant DB Ready!")
 
     yield
