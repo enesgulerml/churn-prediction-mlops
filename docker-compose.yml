@@ -139,9 +139,8 @@ services:
     networks:
       - mlops_network
     restart: always
-    # AUTO-FIX COMMAND: Fixes Windows line endings and permissions automatically on start
     command: >
-      sh -c "sed -i 's/\r$//' ./run.sh && 
+      sh -c "sed -i 's/\r$$//' ./run.sh && 
              chmod +x ./run.sh && 
              ./run.sh"
 
