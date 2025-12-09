@@ -1,26 +1,60 @@
-# 1. Python 3.10
-FROM python:3.10-slim
+# ==========================================
+# STAGE 1: BUILDER (Compile dependencies) 🏗️
+# ==========================================
+FROM python:3.10-slim as builder
 
-# 2. Set working folder
 WORKDIR /app
 
-# 3. Update system dependencies
+# Install system dependencies required for building Python packages
+# (These will be discarded in the final stage to save space)
 RUN apt-get update && apt-get install -y \
     build-essential \
+    software-properties-common \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. Install libraries
+# Create a virtual environment
+RUN python -m venv /opt/venv
+# Activate the virtual environment by adding it to PATH
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# 5. Copy ALL files (src, data, qdrant_storage) into
-COPY . .
+# ==========================================
+# STAGE 2: RUNTIME (Production Image) 🎭
+# ==========================================
+FROM python:3.10-slim as runtime
 
-# 6. Show Python the location of the "src" folder
+WORKDIR /app
+
+# SECURITY: Create a non-root user 'appuser'
+# Running as root is a security risk; using a dedicated user is best practice.
+RUN useradd -m -u 1000 appuser
+
+# Copy the virtual environment from the builder stage
+# This excludes build tools (gcc, git) keeping the image light.
+COPY --from=builder /opt/venv /opt/venv
+
+# Set environment variables
+ENV PATH="/opt/venv/bin:$PATH"
+# Add 'src' to PYTHONPATH to avoid "Module not found" errors
 ENV PYTHONPATH="${PYTHONPATH}:/app/src"
 
-# 7. Open port out
+# Copy application code and grant ownership to 'appuser'
+# Critical: If files are owned by root, 'appuser' cannot write to them (e.g., Qdrant storage).
+COPY --chown=appuser:appuser . .
+
+# Make the entrypoint script executable
+RUN chmod +x run.sh
+
+# Expose the Streamlit port
 EXPOSE 8502
 
-# 8. Launch the app (Streamlit UI)
-CMD ["streamlit", "run", "src/frontend/ui.py", "--server.port=8502", "--server.address=0.0.0.0"]
+# Switch to non-root user
+USER appuser
+
+# Start the application (API + Frontend via wrapper script)
+CMD ["./run.sh"]

@@ -5,8 +5,7 @@ import os
 
 # --- SETTINGS ---
 # Backend API Address
-API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/recommend")
-
+API_URL = "http://localhost:8000/predict"
 # Page Configuration
 st.set_page_config(
     page_title="H&M AI Fashion Stylist",
