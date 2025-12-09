@@ -12,6 +12,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 # --- SETTINGS ---
 COLLECTION_NAME = "hm_items"
 MODEL_NAME = 'all-MiniLM-L6-v2'
+# Bu değişken artık kullanılmıyor ama eski kodlar patlamasın diye durabilir.
 QDRANT_HOST = os.getenv("QDRANT_HOST", "localhost")
 QDRANT_PORT = 6333
 
@@ -20,12 +21,13 @@ ml_models = {}
 redis_client = None
 
 
-# --- LIFESPAN ---
+# --- LIFESPAN (BAŞLANGIÇ AYARLARI) ---
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 1. REDIS CONNECTION
     global redis_client
     try:
+        # DOCKER FIX: Varsayılan host "localhost" değil "redis" olmalı
         redis_host = os.getenv("REDIS_HOST", "redis")
         redis_client = redis.Redis(host=redis_host, port=6379, db=0, decode_responses=True)
         redis_client.ping()
@@ -37,8 +39,12 @@ async def lifespan(app: FastAPI):
     # 2. LOAD MODEL & DB
     print("🚀 Initializing API... Loading embedding model into RAM...")
     ml_models["encoder"] = SentenceTransformer(MODEL_NAME)
-    print("📂 Connecting to Local Qdrant Storage...")
+
+    # --- CRITICAL FIX: CONNECT TO LOCAL DISK, NOT SERVER ---
+    # Sunucuya bağlanmak yerine (host=...), direkt diske (/app/qdrant_storage) bağlanıyoruz.
+    print("📂 Connecting to Local Qdrant Storage at /app/qdrant_storage...")
     ml_models["qdrant"] = QdrantClient(path="/app/qdrant_storage")
+
     print("✅ Model and Qdrant DB Ready!")
 
     yield
@@ -53,6 +59,8 @@ app = FastAPI(title="H&M Fashion Recommender API", lifespan=lifespan)
 
 # --- MONITORING INSTRUMENTATION ---
 Instrumentator().instrument(app).expose(app)
+
+
 # -------------------------------------------------
 
 
@@ -129,6 +137,7 @@ def recommend_products(request: SearchRequest):
         return final_response
 
     except Exception as e:
+        print(f"🔥 ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
