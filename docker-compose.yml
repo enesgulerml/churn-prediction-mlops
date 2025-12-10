@@ -127,23 +127,6 @@ services:
       - mlops_network
     command: streamlit run frontend/main.py --server.port 8501 --server.address 0.0.0.0
 
-  # 8. H&M RECOMMENDATION ENGINE (NEW SERVICE)
-  hm_recommender:
-    build:
-      context: ./hm_app
-    container_name: hm_recommender_app
-    ports:
-      - "8502:8502"
-    volumes:
-      - ./hm_app:/app
-    networks:
-      - mlops_network
-    restart: always
-    command: >
-      sh -c "sed -i 's/\r$$//' ./run.sh && 
-             chmod +x ./run.sh && 
-             ./run.sh"
-
 volumes:
   postgres_data:
   redis_data:
