@@ -12,6 +12,10 @@ This project is a production-grade **MLOps solution** designed to predict custom
 
 The architecture is designed to be **reproducible, scalable, and deployable** with a single command.
 
+<p align="center">
+  <img src="docs/images/CRM.gif" alt="Project Demo" width="700">
+</p>
+
 ---
 
 ## 🏗️ Architecture
