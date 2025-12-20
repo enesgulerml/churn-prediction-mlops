@@ -1,11 +1,11 @@
 # 🔮 End-to-End Telco Churn Prediction System (MLOps)
 
-![Python](https://img.shields.io/badge/Python-3.10-blue)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.110-green)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.32-red)
-![Docker](https://img.shields.io/badge/Docker-Microservices-blue)
-![MLflow](https://img.shields.io/badge/MLflow-Tracking-orange)
-![XGBoost](https://img.shields.io/badge/Model-XGBoost-yellow)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
+![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![MLflow](https://img.shields.io/badge/MLflow-0194E2?style=for-the-badge&logo=mlflow&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)
 
 ## 📌 Project Overview
 This project is a production-grade **MLOps solution** designed to predict customer churn in the telecommunications industry. Unlike traditional data science workflows, this system implements a fully containerized **End-to-End Pipeline** that includes data ingestion, automated experiment tracking, model registry, and real-time serving via microservices.
@@ -19,6 +19,24 @@ The architecture is designed to be **reproducible, scalable, and deployable** wi
 ---
 
 ## 🏗️ Architecture
+
+```mermaid
+graph LR
+    U[User] -->|Input Customer Data| F["Frontend (Streamlit)"]
+    F -->|POST Request| B["Backend API (FastAPI)"]
+    
+    B -->|Check Cache| R[("Redis Cache")]
+    R -.->|Cache Hit| B
+    B -->|Cache Miss / Predict| M["ML Model (XGBoost)"]
+    
+    M -->|Prediction| B
+    B -->|Result| F
+    F -->|Churn Risk %| U
+    
+    subgraph MLOps Infrastructure
+    M -.->|Logs & Artifacts| ML[("MLflow Server")]
+    end
+```
 
 The system runs as a set of orchestrated Docker containers:
 
